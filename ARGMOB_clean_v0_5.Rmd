@@ -322,7 +322,7 @@ ggplot(minor_orders, aes(Order,freq, fill = Filter)) +
 ```{r Inspect the impact of clustering to CRL, warning=FALSE, tidy=TRUE}
 dist_data=read.csv("ARG_IS_distances_mech.txt",sep = "\t",header=F)
 colnames(dist_data) = c("Region","ARO","Updist","Downdist","IS_Up","IS_Down","Replicon",
-                        "Sim_cutoff","Mean_dist","Cluster_size","Mechanism","Submechanism")
+                        "Sim_cutoff","Mean_dist","Cluster_size","Mechanism","Submechanism","Compound")
 dist_data$Cluster_size = gsub("size_","",dist_data$Cluster_size)
 
 #For each region with an ARG, there can be up to two closest IS element: upstream and downstream. The distance to these are denoted as Updist and Downdist, while the Mean_dist column is the mean of the two. A distance of 0 indicates that no IS element was found. 
@@ -497,7 +497,7 @@ pcompress2
 aro_tax = read.csv("aro_tax.Rdat",sep="\t",header =F)
 
 colnames(aro_tax) = c("Region","ARO","Up_dist","Down_dist","IS_up","IS_down",
-                      "Replicon","Sim_cutoff","Mean_dist","Cluster_size","Mechanism","Submechanism","Acc.","Superkingdom",
+                      "Replicon","Sim_cutoff","Mean_dist","Cluster_size","Mechanism","Submechanism","Compound","Acc.","Superkingdom",
                       "Kingdom","Phylum","Class","Order","Family","Genus")
 aro_tax$Superkingdom = as.character(aro_tax$Superkingdom)
 aro_tax$ARO = gsub("ARO:","",aro_tax$ARO)
@@ -868,7 +868,7 @@ aro_tax = read.csv("aro_tax.Rdat",sep="\t",header =F)
 
 colnames(aro_tax) = c("Region","ARO","Up_dist","Down_dist","IS_up","IS_down",
                       "Replicon","Sim_cutoff","Mean_dist","Cluster_size","Mechanism",
-                      "Submechanism","Acc.","Superkingdom",
+                      "Submechanism","Compound","Acc.","Superkingdom",
                       "Kingdom","Phylum","Class","Order","Family","Genus")
 
 aro_tax$ARO = gsub("ARO:","",aro_tax$ARO)
@@ -974,7 +974,7 @@ sub_df_aro_tax = sub_bact %>% summarise(
 
 
 
-#Remmove ca. 400 low-abundance proteobacteria families out of 1605 total for testing
+#Remove ca. 400 low-abundance proteobacteria families out of 1605 total for testing
 sub_df_aro_tax_filt = sub_df_aro_tax %>% 
   group_by(Family) %>% 
   filter(sum(occurrences) >500)
@@ -1147,7 +1147,7 @@ grid.arrange(p_phylum,p_proteo,p_genera1, legend,
 #Import IS distance and replicon data again. Same data as above, but reimported to ensure that formatting is for analyses
 dist_data=read.csv("ARG_IS_distances_mech.txt",sep = "\t",header=F)
 colnames(dist_data) = c("Region","ARO","Updist","Downdist","IS_Up","IS_Down","Replicon",
-                        "Sim_cutoff","Mean_dist","Cluster_size","Mechanism","Submechanism")
+                        "Sim_cutoff","Mean_dist","Cluster_size","Mechanism","Submechanism","Compound")
 #dist_data_pass_sim = dist_data[which(dist_data$Mean_dist < dist_data$Sim_cutoff),]
 #dist_data = dist_data_pass_sim
 dist_data2 = dist_data
@@ -1196,7 +1196,7 @@ df$Replicon = as.numeric(as.character(df$Replicon))
 #Import data on integrons
 arg_int = read.csv("ARG_integrons_ISProx.txt", header = F, sep = "\t")
 colnames(arg_int) = c("Region","ARO","Updist","Downdist","IS_up","IS_down",
-                      "Replicon","Sim_cutoff","Mean_dist","Cluster_size","Mechanism","Submechanism")
+                      "Replicon","Sim_cutoff","Mean_dist","Cluster_size","Mechanism","Submechanism","Compound")
 
 arg_int$ARO = gsub("ARO:","",arg_int$ARO)
 arg_int$Cluster_size = gsub("size_","",arg_int$Cluster_size)
@@ -1387,7 +1387,7 @@ dist_int_join$Int_ratio = dist_int_join$Int_occurrences/dist_int_join$Total_occu
 aro_tax = read.csv("aro_tax.Rdat",sep="\t",header =F)
 
 colnames(aro_tax) = c("Region","ARO","Up_dist","Down_dist","IS_up","IS_down",
-                      "Replicon","Sim_cutoff","Mean_dist","Cluster_size","Mechanism","Submechanism","Acc.","Superkingdom",
+                      "Replicon","Sim_cutoff","Mean_dist","Cluster_size","Mechanism","Submechanism","Compound","Acc.","Superkingdom",
                       "Kingdom","Phylum","Class","Order","Family","Genus")
 
 aro_tax$ARO = gsub("ARO:","",aro_tax$ARO)
@@ -1420,7 +1420,8 @@ for (ARO in tax_all_aros){
   taxcount = nrow(temp)
   Simpson_index = as.numeric(diversity(tax_count, index = "simpson"))
   Simpson2 = 1-(1/as.numeric(as.character(Simpson_index)))
-  temp2 = as.data.frame(cbind(ARO,unique_genera,Simpson_index,taxcount,Simpson2))
+  Compound=temp$Compound
+  temp2 = as.data.frame(cbind(ARO,unique_genera,Simpson_index,taxcount,Simpson2,Compound))
   df_tax = rbind(df_tax,temp2)
 }
 
@@ -2248,6 +2249,24 @@ top_sub_table = top_sub %>%
 colnames(top_sub_table) = c("ARO","Mechanism","Submechanism","CRLs","IS ratio","Replicon ratio","Integron ratio","# unique genera","Simpson index","ARG-MOB")
 datatable(top_sub_table)  %>%
   formatRound(columns=c("IS ratio", "Replicon ratio","Integron ratio","Simpson index","ARG-MOB"), digits=3)
+  
+#Plot antibiotic compounds that have ARGs that are high/medium mobilized
+top_sub_compound = top_sub %>%
+  select(ARO,Compound, ARGMOB, Total_occurrences, Mechanism)
+top_sub_compound$Compound = gsub(";","\n",top_sub_compound$Compound)
+top_sub_compound$Compound = gsub("_antibiotic","",top_sub_compound$Compound)
+
+ggplot(top_sub_compound, aes(x = reorder(Compound, -ARGMOB,FUN=median),ARGMOB)) + 
+  geom_boxplot() + 
+  geom_jitter(aes(size = Total_occurrences, color = Mechanism)) + 
+  theme_light() +
+  labs(x = "Antibiotic compound", size = "CRL occurrences") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8.5)) +
+  scale_color_manual(values = colours, labels = c("Antibiotic efflux (AE)","Antibiotic inactivation",
+  "Antibiotic target alteration (ATA)","Antibiotic target protection (ATP)","Antibiotic target replacement (ATR)"))
+
+
+
 ```  
 
 ## Some AROs have large variance from the mean IS and replicon ratios
