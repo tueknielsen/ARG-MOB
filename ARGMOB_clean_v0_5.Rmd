@@ -1434,7 +1434,7 @@ df_tax = unique(df_tax)
 
 #Merge with other data
 dist_int_tax_join = full_join(dist_int_join, df_tax, by = "ARO") %>%
-  select(1,2,3,4,5,6,7,8,9,10,11,12,14)
+  select(1,2,3,4,5,6,7,8,9,10,11,12,14,15)
 dist_int_tax_join[is.na(dist_int_tax_join)] <- 0
 
 dist_int_tax_join$ARGMOB = (dist_int_tax_join$IS_ratio + 
@@ -2255,15 +2255,25 @@ top_sub_compound = top_sub %>%
   select(ARO,Compound, ARGMOB, Total_occurrences, Mechanism)
 top_sub_compound$Compound = gsub(";","\n",top_sub_compound$Compound)
 top_sub_compound$Compound = gsub("_antibiotic","",top_sub_compound$Compound)
-
-ggplot(top_sub_compound, aes(x = reorder(Compound, -ARGMOB,FUN=median),ARGMOB)) + 
+compound_plot = ggplot(top_sub_compound, aes(x = reorder(Compound, -ARGMOB,FUN=median),ARGMOB)) + 
+  geom_hline(yintercept = high,linetype = "dashed") +
+  geom_hline(yintercept = medium,linetype = "dashed") +
+  geom_hline(yintercept = low,linetype = "dashed") +
+  annotate("rect",xmin = -Inf, xmax = Inf, ymin=high,ymax=1, fill = "#D7191C", alpha = 0.2) +
+  annotate("rect",xmin = -Inf, xmax = Inf, ymin=medium,ymax=high, fill = "#FDAE61", alpha = 0.2) +
+  annotate("rect",xmin = -Inf, xmax = Inf, ymin=low,ymax=medium, fill = "#FFFFBF", alpha = 0.2) +
   geom_boxplot() + 
   geom_jitter(aes(size = Total_occurrences, color = Mechanism)) + 
   theme_light() +
   labs(x = "Antibiotic compound", size = "CRL occurrences") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8.5)) +
+  theme(axis.text.x = element_text(angle = 90, size = 8.5, hjust = 1, vjust = 1)) +
   scale_color_manual(values = colours, labels = c("Antibiotic efflux (AE)","Antibiotic inactivation",
   "Antibiotic target alteration (ATA)","Antibiotic target protection (ATP)","Antibiotic target replacement (ATR)"))
+
+  
+pdf(file = "highARGMOB_compounds.pdf",width=17,height=8)
+compound_plot
+dev.off()
 
 
 
