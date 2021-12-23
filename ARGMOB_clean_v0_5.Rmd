@@ -2287,7 +2287,7 @@ AROs with large variance (e.g. oqxAB) are usually not mobilized but have been in
 aro_tax = read.csv("aro_tax.Rdat",sep="\t",header =F)
 
 colnames(aro_tax) = c("Region","ARO","Up_dist","Down_dist","IS_up","IS_down",
-                      "Replicon","Sim_cutoff","Mean_dist","Cluster_size","Mechanism","Submechanism","Acc.","Superkingdom",
+                      "Replicon","Sim_cutoff","Mean_dist","Cluster_size","Mechanism","Submechanism","Compound","Acc.","Superkingdom",
                       "Kingdom","Phylum","Class","Order","Family","Genus")
 
 aro_tax$Mechanism = gsub("antibiotic_efflux","Antibiotic efflux",aro_tax$Mechanism)
@@ -2521,7 +2521,7 @@ datatable(tbl_export2, rownames = FALSE, filter="top", options = list(pageLength
   formatRound(columns = 6:18,digits=2)
 
  #columnDefs = list(list()))) %>%
-#write.csv2(tbl_export2,file = "ARG_MOB_data.csv",sep = "\t",dec = ".")
+write.csv2(tbl_export2,file = "ARG_MOB_data.csv",sep = "\t",dec = ".")
 ```
 
 ## Make table and simple plot of Mechanism, CRL, and ARO counts
