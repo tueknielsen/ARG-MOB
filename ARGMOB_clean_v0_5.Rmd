@@ -435,10 +435,14 @@ df3 = df2 %>%
 
 df3$Compression = 100-(df3$Occurrences/df3$Total_seqs)*100
 
+#Perform Kruskal-Wallis test to see if there is difference between Mechanisms
+kruskal.test(Compression ~ Mechanism, df3)
+#Kruskal-Wallis chi-squared = 226.38, df = 4, p-value < 2.2e-16
+#Ok to proceed to MWU test.
+
 #Perform pairwise Mann-Whitney tests (unpaired Wilcoxon Rank Sum) on the compression rates
-comp_means = compare_means(Compression ~ Mechanism, data = df3, method = "wilcox.test",paired = F,p.adjust.method = "fdr") %>%
-  #mutate(y_pos = 2) %>%
-  filter(p.adj < 0.05)
+comp_means = compare_means(Compression ~ Mechanism, data = df3, method = "wilcox.test",paired = F,p.adjust.method = "holm") %>%
+  filter(p.adj < 0.01)
 
 #If plyr is loaded after dplyr it messes up some dplyr functions.
 #detach(package:plyr)
@@ -710,8 +714,9 @@ df_filt2$Mechanism = gsub("antibiotic_inactivation","Antibiotic inactivation",df
 df_filt2$Mechanism = gsub("reduced_permeability_to_antibiotic","Reduced permeability to antibiotic",df_filt2$Mechanism)
 df_filt2$Mechanism = gsub("antibiotic_target_protection","Antibiotic target protection",df_filt2$Mechanism)
 
-comp_means = compare_means(Mean_distance ~ Mechanism, data = df_filt2, method = "wilcox.test",paired = F,p.adjust.method = "fdr") %>%
-  #mutate(y_pos = 2) %>%
+kruskal.test(Mean_distance ~ Mechanism, data = df_filt2)
+#Kruskal-Wallis chi-squared = 75.898, df = 5, p-value = 6.041e-15
+comp_means = compare_means(Mean_distance ~ Mechanism, data = df_filt2, method = "wilcox.test",paired = F,p.adjust.method = "holm") %>%
   filter(p.adj < 0.05)
 
 means = df_filt2 %>%
@@ -799,8 +804,10 @@ top12_is = tnp_table3 %>%
 top12_is = as.character(top12_is$IS_family)
 tnp_table4 = tnp_table3[tnp_table3$IS_family %in% top12_is,]
 
-#Do Wilcoxon Rank Sum tests (Mann-Whitney) on IS families per major mechanism  
-anno_df2 = compare_means(freq ~ Mechanism, group.by = "IS_family", data = tnp_table4, method = "wilcox.test",paired = F,p.adjust.method = "fdr") %>%
+#Do Wilcoxon Rank Sum tests (Mann-Whitney) on IS families per major mechanism
+kruskal.test(freq ~ Mechanism, tnp_table4)
+#Kruskal-Wallis chi-squared = 883.44, df = 5, p-value < 2.2e-16
+anno_df2 = compare_means(freq ~ Mechanism, group.by = "IS_family", data = tnp_table4, method = "wilcox.test",paired = F,p.adjust.method = "holm") %>%
     filter(p.adj < 0.05)
 
 #Convert p values to asterisks indicating significance levels
