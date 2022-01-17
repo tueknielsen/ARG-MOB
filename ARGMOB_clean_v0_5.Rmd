@@ -922,10 +922,11 @@ df_aro_tax_filt %>%
 
 #There is not normality in the data
 
+kruskal.test(ratio ~ Phylum, df_aro_tax_filt)
 #Perform Wilcoxon Rank Sum test (Mann-Whitney)
 phylum_test = as.data.frame(compare_means(ratio ~ Phylum, data = df_aro_tax_filt,
                                           method = "wilcox.test",paired = F,
-                                          p.adjust.method = "none")) %>%
+                                          p.adjust.method = "holm")) %>%
   filter(p.adj < 0.05)
 comparisons_phylum = as.data.frame(cbind(phylum_test$group1,phylum_test$group2))
 
@@ -987,11 +988,13 @@ sub_df_aro_tax_filt = sub_df_aro_tax %>%
   filter(sum(occurrences) >500)
 
 #Test the IS ratio
-family_test = as.data.frame(compare_means(ratio ~ Family, data = sub_df_aro_tax_filt, method = "wilcox.test",paired = F,p.adjust.method = "fdr")) %>%
+kruskal.test(ratio ~ Family, data = sub_df_aro_tax_filt)
+family_test = as.data.frame(compare_means(ratio ~ Family, data = sub_df_aro_tax_filt, method = "wilcox.test",paired = F,p.adjust.method = "holm")) %>%
   filter(p.adj < 0.05)
 datatable(family_test)
 #Test the replicon ratio
-family_test_p = as.data.frame(compare_means(replicon_type ~ Family, data = sub_df_aro_tax_filt, method = "wilcox.test",paired = F,p.adjust.method = "fdr")) %>%
+kruskal.test(replicon_type ~ Family, data = sub_df_aro_tax_filt)
+family_test_p = as.data.frame(compare_means(replicon_type ~ Family, data = sub_df_aro_tax_filt, method = "wilcox.test",paired = F,p.adjust.method = "holm")) %>%
   filter(p.adj < 0.05)
 datatable(family_test_p)
 
@@ -1046,9 +1049,10 @@ sub_df_aro_tax_filt2 = sub_df_aro_tax %>%
   group_by(Genus) %>% 
   filter(sum(occurrences) >100)
 
+kruskal.test(replicon_type ~ Genus, data = sub_df_aro_tax_filt2)
 genus_test_p = as.data.frame(compare_means(replicon_type ~ Genus, data = sub_df_aro_tax_filt2,
                                            method = "wilcox.test",paired = F,
-                                           p.adjust.method = "fdr")) %>%
+                                           p.adjust.method = "holm")) %>%
   filter(p.adj < 0.05) %>%
   select(2:3,5,7)
 
@@ -1068,10 +1072,10 @@ for(i in 1:nrow(genus_test_p)){
     genus_test_p$p.signif[i]="ns"}
 }
 
-
+kruskal.test(ratio ~ Genus, data = sub_df_aro_tax_filt2)
 genus_test = as.data.frame(compare_means(ratio ~ Genus, data = sub_df_aro_tax_filt2,
                                          method = "wilcox.test",paired = F,
-                                         p.adjust.method = "fdr")) %>%
+                                         p.adjust.method = "holm")) %>%
   filter(p.adj < 0.05) %>%
   select(2:3,5,7)
 
@@ -1522,7 +1526,7 @@ mw_custom_fun = function() {
 
 comp_means = compare_means(ARGMOB ~ Mechanism, data = dist_int_tax_join_filt,
                            method = "wilcox.test",paired = F,
-                           p.adjust.method = "fdr") %>%
+                           p.adjust.method = "holm") %>%
     filter(p.adj < 0.05)
 
 comp_means = mw_custom_fun()
@@ -1533,7 +1537,7 @@ datatable(comp_means)
 
 comp_means = compare_means(IS_ratio ~ Mechanism, data = dist_int_tax_join_filt,
                            method = "wilcox.test",paired = F,
-                           p.adjust.method = "fdr") %>%
+                           p.adjust.method = "holm") %>%
     filter(p.adj < 0.05)
 
 comp_means = mw_custom_fun()
@@ -1554,7 +1558,7 @@ p1 = ggplot(dist_int_tax_join_filt, aes(x = reorder(Mechanism, -ARGMOB, FUN = me
                width = 0.75, size = 1, linetype = "dashed") +
   scale_y_continuous(labels= c(0,00.25,0.50,0.75,1.00), 
                      breaks= c(0,00.25,0.50,0.75,1.00), limits = c(0,1))  +
-  annotate("text", x = 1:5, y = 1, label = c("bold(a)","bold(b)","bold(bc)","bold(c)","bold(c)"), 
+  annotate("text", x = 1:5, y = 1, label = c("bold(a)","bold(b)","bold(bc)","bold(bc)","bold(c)"), 
            parse = T, size = 3)
 
 #p1
@@ -1575,7 +1579,7 @@ p1_dens = ggplot(dist_int_tax_join_filt, aes(x = reorder(Mechanism, -ARGMOB, FUN
 #Replicon ratio
 comp_means = compare_means(Replicon_ratio ~ Mechanism, data = dist_int_tax_join_filt, 
                            method = "wilcox.test",paired = F,
-                           p.adjust.method = "fdr") %>%
+                           p.adjust.method = "holm") %>%
   filter(p.adj < 0.05)
 
 comp_means = mw_custom_fun()
@@ -1595,7 +1599,7 @@ p2 = ggplot(dist_int_tax_join_filt, aes(x = reorder(Mechanism, -ARGMOB, FUN = me
                width = 0.75, size = 1, linetype = "dashed") +
   scale_y_continuous(labels= c(0,00.25,0.50,0.75,1.00), 
                      breaks= c(0,00.25,0.50,0.75,1.00), limits = c(0,1)) +
-  annotate("text", x = 1:5, y = 1, label = c("bold(a)","bold(b)","bold(bc)","bold(c)","bold(c)"), 
+  annotate("text", x = 1:5, y = 1, label = c("bold(a)","bold(b)","bold(bc)","bold(bc)","bold(c)"), 
            parse = T, size = 3)
 
 
@@ -1615,7 +1619,7 @@ p2_dens = ggplot(dist_int_tax_join_filt, aes(x = reorder(Mechanism, -ARGMOB, FUN
 #Integron ratio
 comp_means = compare_means(Int_ratio ~ Mechanism, data = dist_int_tax_join_filt, 
                            method = "wilcox.test",paired = F,
-                           p.adjust.method = "fdr") %>%
+                           p.adjust.method = "holm") %>%
   filter(p.adj < 0.05)
 
 comp_means = mw_custom_fun()
@@ -1636,7 +1640,7 @@ p3 = ggplot(dist_int_tax_join_filt, aes(x = reorder(Mechanism, -ARGMOB, FUN = me
                width = 0.75, size = 1, linetype = "dashed") +
   scale_y_continuous(labels= c(0,00.25,0.50,0.75,1.00), 
                      breaks= c(0,00.25,0.50,0.75,1.00), limits = c(0,1)) +
-  annotate("text", x = 1:5, y = 1, label = c("bold(a)","bold(b)","bold(bc)","bold(c)","bold(c)"), 
+  annotate("text", x = 1:5, y = 1, label = c("bold(a)","bold(b)","bold(bc)","bold(bc)","bold(c)"), 
            parse = T, size = 3)
 
 p3_dens = ggplot(dist_int_tax_join_filt, aes(x = reorder(Mechanism, -ARGMOB, FUN = mean,), Int_ratio)) +
@@ -1655,7 +1659,7 @@ p3_dens = ggplot(dist_int_tax_join_filt, aes(x = reorder(Mechanism, -ARGMOB, FUN
 #Simpson diversity index
 comp_means = compare_means(Simpson_index ~ Mechanism, data = dist_int_tax_join_filt, 
                            method = "wilcox.test",paired = F,
-                           p.adjust.method = "fdr") %>%
+                           p.adjust.method = "holm") %>%
   filter(p.adj < 0.05) 
 
 comp_means = mw_custom_fun()
@@ -1676,7 +1680,7 @@ p4 = ggplot(dist_int_tax_join_filt, aes(x = reorder(Mechanism, -ARGMOB, FUN = me
   scale_y_continuous(labels= c(0,00.25,0.50,0.75,1.00), 
                      breaks= c(0,00.25,0.50,0.75,1.00), limits = c(0,1)) +
   scale_x_discrete(labels=c("ATR","ATP","AI","ATA","AE")) +
-  annotate("text", x = 1:5, y = 1, label = c("bold(a)","bold(b)","bold(bc)","bold(c)","bold(c)"), 
+  annotate("text", x = 1:5, y = 1, label = c("bold(a)","bold(b)","bold(bc)","bold(bc)","bold(c)"), 
            parse = T, size = 3)
 
 p4_dens = ggplot(dist_int_tax_join_filt, aes(x = reorder(Mechanism, -ARGMOB, FUN = mean,), Simpson_index)) +
