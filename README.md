@@ -3,8 +3,9 @@ This repository provides documentation for the analysis in the preprint manuscri
 
 "ARG_MOB_v0_5.sh" is the main script and contains the most information. Please edit paths and variables in the top of the script to match your paths before running the script. 
 
-It is required that you also download the file "ARGMOB_databases.tar.gz", before running the script. This file contains all necessary data files to run the analyses. For now, this file is only provided upon request to tkn@plen.ku.dk. 
-The database files in ARGMOB_databases.tar.gz include:
+It is required that you also download the file "ARGMOB_databases.tar", before running the script.
+This file contains all necessary data files to run the analyses and is available from [GigaDB](https://eur02.safelinks.protection.outlook.com/?url=http%3A%2F%2Fdx.doi.org%2F10.5524%2F102232&amp;data=05%7C01%7Ctkn%40plen.ku.dk%7C58460f7be3b142bcff4c08da48647f98%7Ca3927f91cda14696af898c9f1ceffa91%7C0%7C0%7C637901893727092236%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000%7C%7C%7C&amp;sdata=yJTg0v%2BQ9z4eFw13Lax%2FZYt2hLx1j%2B321vNV4c%2BaKVU%3D&amp;reserved=0). 
+The database files in ARGMOB_databases.tar include:
   - RefSeq complete bacterial genomes downloaded on Dec. 12 2019.
   - CARD database (v3.0.7). This database has not been modified from the original version. The original source of the database is McMaster University at https://card.mcmaster.ca/. The CARD database made available in ARGMOB_databases.tar.gz is not in affiliation with or endorsed by McMaster University.
   - IS transposase protein sequences from ISfinder as implemented in Prokka (v1.14.6) under the GPLv3 license.
